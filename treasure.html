@@ -1,14 +1,120 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Соберите сердечки</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Третья мини-игра</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Соберите все сердечки!</h1>
-<canvas id="treasureCanvas"></canvas>
-<div id="congrats" style="display:none; margin-top:20px; color:#b85c5c; font-size:20px;">
-Поздравляем! Вы успешно собрали все сердечки!
-</div>
+    <h1>Помогите "откопать" сердечки!</h1>
+    <p>Нажимайте на сердечки, чтобы собрать их все.</p>
+    <canvas id="treasureCanvas"></canvas>
 
+    <div id="congrats" style="display:none; margin-top:20px; color:#b85c5c; font-size:20px;">
+        Поздравляем! Вы успешно собрали все сердечки!
+    </div>
+
+    <!-- Фоновая музыка -->
+    <audio id="bgMusic" src="music.mp3" loop></audio>
+    <div id="musicPrompt" style="margin-top:20px; color:#b85c5c;">
+        Нажмите на экран, чтобы включить фоновую музыку
+    </div>
+
+    <script>
+        // Включение музыки
+        const music = document.getElementById("bgMusic");
+        const prompt = document.getElementById("musicPrompt");
+        window.addEventListener("click", () => {
+            if(music.paused){ 
+                music.play(); 
+                prompt.style.display="none"; 
+            }
+        });
+
+        const canvas = document.getElementById("treasureCanvas");
+        const ctx = canvas.getContext("2d");
+        const width = 600;
+        const height = 400;
+        canvas.width = width;
+        canvas.height = height;
+
+        const groomImg = new Image();
+        const brideImg = new Image();
+        const heartImg = new Image();
+
+        groomImg.src = "groom.png";
+        brideImg.src = "bride.png";
+        heartImg.src = "heart.png";
+
+        let hearts = [];
+        const totalHearts = 40;
+        let collectedHearts = 0;
+
+        // Генерируем сердечки случайно
+        function generateHearts(){
+            hearts = [];
+            for(let i=0;i<totalHearts;i++){
+                const x = Math.random() * (width - 40);
+                const y = Math.random() * (height - 40);
+                hearts.push({x:x, y:y, size:30});
+            }
+        }
+
+        function draw(){
+            ctx.clearRect(0,0,width,height);
+            ctx.fillStyle="#fef9f4";
+            ctx.fillRect(0,0,width,height);
+
+            // жених и невеста в центре
+            const centerX = width/2 - 25;
+            const centerY = height/2 - 25;
+            ctx.drawImage(groomImg, centerX, centerY,50,50);
+            ctx.drawImage(brideImg, centerX+30, centerY,50,50);
+
+            // сердечки
+            hearts.forEach(h=>{
+                ctx.drawImage(heartImg,h.x,h.y,h.size,h.size);
+            });
+        }
+
+        canvas.addEventListener("click",(e)=>{
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            for(let i=hearts.length-1;i>=0;i--){
+                const h = hearts[i];
+                if(clickX>=h.x && clickX<=h.x+h.size && clickY>=h.y && clickY<=h.y+h.size){
+                    hearts.splice(i,1);
+                    collectedHearts++;
+                    draw();
+                    break;
+                }
+            }
+
+            if(collectedHearts === totalHearts){
+                document.getElementById("treasureCanvas").style.display="none";
+                document.getElementById("congrats").style.display="block";
+
+                // Автоматический переход на финальную страницу через 2 секунды
+                setTimeout(()=>{
+                    window.location.href = "final.html";
+                }, 2000);
+            }
+        });
+
+        // Ждем загрузки всех изображений
+        let loaded = 0;
+        function checkLoaded(){ 
+            loaded++; 
+            if(loaded===3){ 
+                generateHearts(); 
+                draw(); 
+            } 
+        }
+        groomImg.onload=checkLoaded;
+        brideImg.onload=checkLoaded;
+        heartImg.onload=checkLoaded;
+    </script>
+</body>
+</html>

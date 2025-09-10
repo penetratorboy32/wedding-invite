@@ -1,89 +1,25 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Адрес свадьбы</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Адрес свадьбы</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Адрес свадьбы</h1>
-<p>ул. Счастливая, д. 12, г. ВашГород</p>
-<p>Помогите невесте добраться до жениха!</p>
-<canvas id="gameCanvas"></canvas>
+    <h1>Адрес свадьбы</h1>
+    <p>Ставропольский край, г. Пятигорск, ул. Братьев Бернардацци, д. 5.</p>
+    <p>Теперь помогите невесте дойти до жениха и собрать все сердечки!</p>
+    <canvas id="maze2"></canvas>
 
-<audio id="bgMusic" src="music.mp3" loop></audio>
-<audio id="actionSound" src="action.mp3"></audio>
-<div id="musicPrompt" style="margin-top:20px; color:#b85c5c;">Нажмите на экран, чтобы включить музыку</div>
+    <!-- фоновая музыка -->
+    <audio id="bgMusic" src="music.mp3" loop autoplay></audio>
 
-<script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width=600; canvas.height=400;
-
-const bgMusic = document.getElementById("bgMusic");
-const actionSound = document.getElementById("actionSound");
-const prompt = document.getElementById("musicPrompt");
-
-window.addEventListener("click", ()=>{
-    if(bgMusic.paused){ bgMusic.play(); prompt.style.display="none"; }
-});
-
-const groom = new Image(); groom.src="groom.png";
-const bride = new Image(); bride.src="bride.png";
-
-const cellSize = 50;
-const cols = 12;
-const rows = 8;
-
-let character = {col:10, row:6};
-const target = {col:0, row:0};
-
-const walls = [
-  {col:2,row:2},{col:2,row:3},{col:3,row:3},{col:4,row:4},{col:6,row:5},{col:7,row:5}
-];
-
-function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle="#fef9f4"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle="#ccc";
-    for(let c=0;c<=cols;c++){
-        ctx.beginPath();
-        ctx.moveTo(c*cellSize,0); ctx.lineTo(c*cellSize,rows*cellSize); ctx.stroke();
-    }
-    for(let r=0;r<=rows;r++){
-        ctx.beginPath();
-        ctx.moveTo(0,r*cellSize); ctx.lineTo(cols*cellSize,r*cellSize); ctx.stroke();
-    }
-    ctx.fillStyle="#bca"; 
-    walls.forEach(w=>{
-        ctx.fillRect(w.col*cellSize,w.row*cellSize,cellSize,cellSize);
-    });
-    ctx.drawImage(bride, character.col*cellSize, character.row*cellSize, cellSize, cellSize);
-    ctx.drawImage(groom, target.col*cellSize, target.row*cellSize, cellSize, cellSize);
-}
-
-canvas.addEventListener("click",(e)=>{
-    const rect = canvas.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-
-    const clickedCol = Math.floor(clickX/cellSize);
-    const clickedRow = Math.floor(clickY/cellSize);
-
-    if(Math.abs(clickedCol-character.col)+Math.abs(clickedRow-character.row)===1){
-        if(!walls.some(w=>w.col===clickedCol && w.row===clickedRow)){
-            character.col = clickedCol;
-            character.row = clickedRow;
-            actionSound.currentTime=0; actionSound.play();
-            draw();
-            if(character.col===target.col && character.row===target.row){
-                setTimeout(()=>{ window.location.href="schedule.html"; },500);
-            }
-        }
-    }
-});
-
-draw();
-</script>
+    <script src="script2.js" defer></script>
+    <script>
+        window.addEventListener("click", () => {
+            const music = document.getElementById("bgMusic");
+            if (music.paused) music.play();
+        });
+    </script>
 </body>
 </html>
